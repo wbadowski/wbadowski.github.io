@@ -1,26 +1,7 @@
-<script type="text/javascript">
-    bluetoothdevice = "";
-    function getDevice() {
-        navigator.bluetooth.requestDevice({
-            acceptAllDevices: true
-        })
-        .then(device => device.gatt.connect())
-        .then(server => {
-          // Getting Battery Service...
-          return server.getPrimaryService('battery_service');
-        })
-        .then(service => {
-          // Getting Battery Level Characteristic...
-          return service.getCharacteristic('battery_level');
-        })
-        .then(characteristic => {
-          // Reading Battery Level...
-          return characteristic.readValue();
-        })
-        .catch(error => {
-            console.log(error);
-        });
-    }
-</script>
+<link href="styles.css" rel="stylesheet"/>
+<script type="text/javascript" src="app.es6"></script>
 
-<input type="button" value="getDevice" onclick="getDevice()">
+<div class="center">
+    <a href="#" class="button green" onclick="getDevice()">Connect to device</a>
+    <div id="battery-level" style="display:none;" class="button blue"></div>
+</div>
