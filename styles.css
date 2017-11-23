@@ -10,6 +10,7 @@ body {
 
 .button { /* Green */
     border: none;
+    margin-top: 20px;
     width: 35%;
     color: white;
     padding: 15px 32px;
@@ -17,7 +18,7 @@ body {
     text-decoration: none;
     font-size: 16px;
     border-radius: 5px;
-    display: inline-block;
+    display: block;
 }
 
 .blue {
@@ -26,6 +27,9 @@ body {
 
 .green {
     background-color: #4CAF50;
+}
+#battery-level {
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }
 
 footer {

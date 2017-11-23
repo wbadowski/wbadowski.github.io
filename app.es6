@@ -16,7 +16,7 @@ function getDevice() {
         })
         .then(characteristic => characteristic.startNotifications())
         .then(characteristic => {
-            document.getElementById('battery-level').style = 'display: inline-block';
+            document.getElementById('battery-level').style = 'display: block';
             characteristic.addEventListener('characteristicvaluechanged', handleBatteryLevelChanged);
             return characteristic.readValue();
         })
@@ -30,7 +30,10 @@ function getDevice() {
 
 function handleBatteryLevelChanged(event) {
     let batteryLevel = event.target.value.getUint8(0);
-    document.getElementById('battery-level').innerHTML = 'Battery level is: ' + batteryLevel + '%';
+    var valueElement = document.getElementById('battery-level');
+    valueElement.innerHTML = 'Battery level is: ' + batteryLevel + '%';
+    var background = percentageToHsl(batteryLevel/100, 20, 100);
+    valueElement.style = 'display: block; background-color: ' + background;
 
     console.log('Battery percentage is ' + batteryLevel);
 }
@@ -38,4 +41,9 @@ function handleBatteryLevelChanged(event) {
 function onDisconnected() {
     console.log('disconnected')
     document.getElementById('battery-level').style = 'display: none';
+}
+
+function percentageToHsl(percentage, hue0, hue1) {
+    var hue = (percentage * (hue1 - hue0)) + hue0;
+    return 'hsl(' + hue + ', 100%, 50%)';
 }
