@@ -3,7 +3,10 @@ let bluetoothServer = {};
 
 function getDevice() {
     navigator.bluetooth.requestDevice({filters: [{services: ['battery_service']}]})
-        .then(device => device.gatt.connect())
+        .then(device => {
+            device.addEventListener('gattserverdisconnected', onDisconnected);
+            return device.gatt.connect()
+        })
         .then(server => {
             bluetoothServer = server;
             return server.getPrimaryService('battery_service');
@@ -30,4 +33,9 @@ function handleBatteryLevelChanged(event) {
     document.getElementById('battery-level').innerHTML = 'Battery level is: ' + batteryLevel + '%';
 
     console.log('Battery percentage is ' + batteryLevel);
+}
+
+function onDisconnected() {
+    console.log('disconnected')
+    document.getElementById('battery-level').style = 'display: none';
 }

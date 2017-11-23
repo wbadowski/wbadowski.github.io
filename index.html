@@ -1,7 +1,18 @@
-<link href="styles.css" rel="stylesheet"/>
-<script type="text/javascript" src="app.es6"></script>
+<head>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link href="styles.css" rel="stylesheet" xmlns="http://www.w3.org/1999/html"/>
+    <script type="text/javascript" src="app.es6"></script>
+</head>
+<body>
+    <div class="center">
+        <a href="#" class="button green" onclick="getDevice()">Connect to device</a>
+        <div id="battery-level" style="display:none;" class="button blue"></div>
+    </div>
 
-<div class="center">
-    <a href="#" class="button green" onclick="getDevice()">Connect to device</a>
-    <div id="battery-level" style="display:none;" class="button blue"></div>
-</div>
+    <footer>
+        To use this demo download and install BLE Peripherial Simulator to emulate Battery Service<br>
+        <a href="https://github.com/WebBluetoothCG/ble-test-peripheral-android">Github</a> <br>
+        <a href="https://play.google.com/store/apps/details?id=io.github.webbluetoothcg.bletestperipheral">Google Play
+            Store</a>
+    </footer>
+</body>
