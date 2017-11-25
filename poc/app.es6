@@ -1,4 +1,3 @@
-var valueElement = document.getElementById('battery-level');
 var pairElement = document.getElementById('pair-device');
 let bluetoothServer = {};
 
@@ -38,27 +37,11 @@ function getDevice() {
         })
 }
 
-function handleBatteryLevelChanged(event) {
-    let batteryLevel = event.target.value.getUint8(0);
-    var background = percentageToHsl(batteryLevel/100, 20, 100);
-    valueElement.innerHTML = 'Battery level is: ' + batteryLevel + '%';
-    valueElement.style = 'display: block; background-color: ' + background;
-
-    console.log('Battery percentage is ' + batteryLevel);
-}
-
 function onDisconnected() {
     console.log('disconnected');
-    valueElement.style = 'display: none';
     pairElement.innerHTML = 'Pair with device';
 }
 
 function onConnected() {
-    valueElement.style = 'display: block';
     pairElement.innerHTML = 'Paired';
-}
-
-function percentageToHsl(percentage, hue0, hue1) {
-    var hue = (percentage * (hue1 - hue0)) + hue0;
-    return 'hsl(' + hue + ', 100%, 50%)';
 }

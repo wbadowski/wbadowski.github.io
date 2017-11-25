@@ -1,0 +1,1 @@
+let encoder = new TextEncoder('utf-8'); let text = encoder.encode('AT E1\r');
