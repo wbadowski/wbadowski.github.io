@@ -2,7 +2,8 @@ var pairElement = document.getElementById('pair-device');
 let bluetoothServer = {};
 let bluetoothDevice = {};
 let bluetoothService = {};
-let bluetoothCharacteristic = {};
+let bluetoothWriteCharacteristic = {};
+let bluetoothReadCharacteristic = {};
 
 
 var serviceUUID = '0000fff0-0000-1000-8000-00805f9b34fb';
@@ -34,12 +35,21 @@ function getDevice() {
             console.log(arguments);
             console.log(service);
             bluetoothService  = service;
-            return service.getCharacteristic(characteristicWriteUUID);
+            return service.getCharacteristic(characteristicReadUUID);
+        })
+        .then(characteristic => {
+            console.log("got notifications");
+            bluetoothReadCharacteristic = characteristic;
+            characteristic.addEventListener('characteristicvaluechanged', handleBatteryLevelChanged);
+            return characteristic.startNotifications()
+        })
+        .then(_ => {
+            return bluetoothService.getCharacteristic(characteristicWriteUUID);
         })
         .then(characteristic => {
             console.log("got characteristic");
             onConnected();
-            bluetoothCharacteristic = characteristic;
+            bluetoothWriteCharacteristic = characteristic;
 
             let encoder = new TextEncoder('UTF-8');
             let text = encoder.encode('AT @1\r');
