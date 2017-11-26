@@ -1,11 +1,10 @@
 var pairElement = document.getElementById('pair-device');
-var commandInput = document.getElementById('input-command');
-var logElement = document.getElementById('log');
 var bluetoothServer = {};
 var bluetoothDevice = {};
 var bluetoothService = {};
 var bluetoothWriteCharacteristic = {};
 var bluetoothReadCharacteristic = {};
+var gauge= {};
 
 var serviceUUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 var characteristicWriteUUID = '0000fff2-0000-1000-8000-00805f9b34fb';
@@ -69,11 +68,7 @@ function getCommandText() {
     return command + eolChar;
 }
 
-function writeToBluetooth() {
-    var text = getCommandText();
-
-    addRequestToLog(text);
-
+function writeToBluetooth(text) {
     return bluetoothWriteCharacteristic.writeValue(encodeCommand(text)).then(value => {
         console.log("command successfully sent")
     }, error => {
@@ -81,41 +76,27 @@ function writeToBluetooth() {
     });
 }
 
-function addResponseToLog(logLine) {
-    return  addLineToLog("<= " + logLine);
-}
-
-function addRequestToLog(logLine) {
-    return addLineToLog( "=> " + logLine);
-}
-
-function addLineToLog(logLine) {
-    logElement.innerHTML += logLine + "<br>";
-    logElement.scrollTop = logElement.scrollHeight;
-}
 
 var convertValue = function (decodedValue) {
     var hexString = decodedValue.substr(6).replace(/\s/g, "");
-    return parseInt(hexString, 16);
+    return parseInt(hexString, 16) / 4;
 }
+
+function changeGauge(decodedValue) {
+    gauge.refresh(decodedValue);
+}
+
 
 function handleNottification(event) {
     var value = event.target.value;
     var decoder = new TextDecoder('utf-8');
     var decodedValue = decoder.decode(value);
     console.log(decodedValue);
-
     if (decodedValue.startsWith("4")){
-        addResponseToLog(decodedValue);
-        addResponseToLog(convertValue(decodedValue));
-    } else {
-        addResponseToLog(decodedValue);
+        changeGauge(decodedValue);
     }
 }
 
-function clearConsole() {
-    logElement.innerHTML = "";
-}
 function onDisconnected() {
     console.log('disconnected');
     pairElement.innerHTML = 'Pair with device';
@@ -123,11 +104,18 @@ function onDisconnected() {
 
 function onConnected() {
     pairElement.innerHTML = 'Paired';
+
+    gauge = new JustGage({
+        id: "gauge",
+        value: 0,
+        min: 0,
+        max: 6000,
+        title: "Engine RPM"
+    });
+
+    writeToBluetooth("AT E0");
+
+    setInterval(function () {
+        writeToBluetooth("01 0c");
+    }, 50);
 }
-
-document.getElementById("input-command").addEventListener("keyup", function (event) {
-    if (event.keyCode == 13) {
-        writeToBluetooth();
-    }
-
-});
