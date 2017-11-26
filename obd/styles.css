@@ -1,5 +1,7 @@
 body {
     font-family: Arial, sans-serif;
+    background-color: #3a3939;
+    color: #dddddd;
 }
 
 .center {
@@ -47,4 +49,5 @@ body {
     height: 500px;
     font-size: 0.6em;
     overflow: scroll;
+    background-color: #535252;
 }
