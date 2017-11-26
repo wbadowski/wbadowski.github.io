@@ -28,3 +28,23 @@ body {
 .green {
     background-color: #4CAF50;
 }
+
+#input-command {
+    margin-top: 8px;
+    box-sizing: border-box;
+    padding: 20px;
+    width: auto;
+    display: inline-block;
+}
+
+#send-command {
+    display: inline-block;
+}
+
+
+#log {
+    width: 50%;
+    height: 500px;
+    font-size: 0.6em;
+    overflow: scroll;
+}

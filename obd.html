@@ -7,10 +7,13 @@
     <link href="obd/styles.css" rel="stylesheet"/>
 </head>
 <body>
-
-    <a href="#" id="pair-device" class="button green center" onclick="getDevice()">Pair with device</a>
-    <a href="#" id="pair-devdddice" class="button green center" onclick="getCharacteristic()">notify</a>
-<input type="text" id="input-command">
+    <div class="center">
+        <a href="#" id="pair-device" class="button green " onclick="getDevice()">Pair with device</a>
+        <a href="#" id="clear-console" class="button green" onclick="clearConsole()">clear console</a>
+        <input type="text" id="input-command" title="command">
+        <a href="#" id="send-command" class="button green" onclick="writeToBluetooth()">send command</a>
+        <div id="log"></div>
+    </div>
 </body>
 
 <script type="text/javascript" src="obd/app.es6"></script>

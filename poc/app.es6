@@ -24,7 +24,7 @@ function getDevice() {
         .then(characteristic => {
             console.log("got characteristic");
             onConnected();
-            characteristic.addEventListener('characteristicvaluechanged', handleBatteryLevelChanged);
+            characteristic.addEventListener('characteristicvaluechanged', handleNottification);
             return characteristic.readValue();
         })
         .then(value => {

@@ -1,16 +1,16 @@
 var pairElement = document.getElementById('pair-device');
-let bluetoothServer = {};
-let bluetoothDevice = {};
-let bluetoothService = {};
-let bluetoothWriteCharacteristic = {};
-let bluetoothReadCharacteristic = {};
-
+var commandInput = document.getElementById('input-command');
+var logElement = document.getElementById('log');
+var bluetoothServer = {};
+var bluetoothDevice = {};
+var bluetoothService = {};
+var bluetoothWriteCharacteristic = {};
+var bluetoothReadCharacteristic = {};
 
 var serviceUUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 var characteristicWriteUUID = '0000fff2-0000-1000-8000-00805f9b34fb';
 var characteristicReadUUID = '0000fff1-0000-1000-8000-00805f9b34fb';
-
-
+var eolChar = "\r";
 
 // var serviceUUID = '49535343-fe7d-4ae5-8fa9-9fafd205e445';
 // var characteristicUUID = '49535343-fe7d-4ae5-8fa9-9fafd205e455';
@@ -20,78 +20,102 @@ function getDevice() {
     navigator.bluetooth.requestDevice({filters: [{services: [serviceUUID]}]})// , optionalServices: [serviceUUID]}]})
         .then(device => {
             console.log("got device");
-
+            console.log(device);
             device.addEventListener('gattserverdisconnected', onDisconnected);
             bluetoothDevice = device;
             return device.gatt.connect()
         })
         .then(server => {
-            console.log("got server");
+            console.log("got GATT server");
             bluetoothServer = server;
             return server.getPrimaryService(serviceUUID);
         })
         .then(service => {
-            console.log("got service");
-            console.log(arguments);
+            console.log("got serial port service");
             console.log(service);
             bluetoothService  = service;
             return service.getCharacteristic(characteristicReadUUID);
         })
         .then(characteristic => {
-            console.log("got notifications");
+            console.log("got read characteristic");
+            console.log(characteristic);
             bluetoothReadCharacteristic = characteristic;
-            characteristic.addEventListener('characteristicvaluechanged', handleBatteryLevelChanged);
+            characteristic.addEventListener('characteristicvaluechanged', handleNottification);
             return characteristic.startNotifications()
         })
         .then(_ => {
+            console.log("subscribed to reading notifications");
             return bluetoothService.getCharacteristic(characteristicWriteUUID);
         })
         .then(characteristic => {
-            console.log("got characteristic");
-            onConnected();
+            console.log("got write characteristic");
+            console.log(characteristic);
             bluetoothWriteCharacteristic = characteristic;
-
-            let encoder = new TextEncoder('UTF-8');
-            let text = encoder.encode('AT @1\r');
-
-
-            return characteristic.writeValue(text).
-                then(value => {
-                    console.log(value);
-                }, error => {
-
-                    console.log('write error' + error);
-                });
-
-        })
-        .then(value => {
-            console.log("got value");
-            console.log(value);
+            onConnected();
         })
         .catch(error => {
-            // onDisconnected();
-            console.log('my bad' + error);
+            onDisconnected();
+            console.log('some error occured: ' + error);
         })
 }
 
-function getCharacteristic() {
-        bluetoothService.getCharacteristic(characteristicReadUUID)
-        .then(characteristic => {
-            console.log("got notifications");
-            characteristic.addEventListener('characteristicvaluechanged', handleBatteryLevelChanged);
-            return characteristic.startNotifications()
-        })
-        .catch(error => {
-            // onDisconnected();
-            console.log(error);
-        })
+function encodeCommand(commandText) {
+    var encoder = new TextEncoder('UTF-8');
+    return encoder.encode(commandText);
 }
 
-function handleBatteryLevelChanged(event) {
-
-    console.log(event.target.value);
+function getCommand() {
+    var command = commandInput.value || 'AT I';
+    return command + eolChar;
 }
 
+function writeToBluetooth() {
+    var text = getCommand();
+
+    addCommandToLog(text);
+
+    return bluetoothWriteCharacteristic.writeValue(encodeCommand(text)).then(value => {
+        console.log("command successfully sent")
+    }, error => {
+        console.log('write error: ' + error);
+    });
+}
+
+function addResponseToLog(logLine) {
+    return  addLineToLog("<= " + logLine);
+}
+
+function addCommandToLog(logLine) {
+    return addLineToLog( "=> " + logLine);
+}
+
+function addLineToLog(logLine) {
+    return  logElement.innerHTML = logLine + "<br>" + logElement.innerHTML;
+}
+
+var convertValue = function (decodedValue) {
+    var hexString = decodedValue.substr(6).replace(/\s/g, "");
+    return parseInt(hexString, 16);
+}
+
+function handleNottification(event) {
+    var value = event.target.value;
+    var decoder = new TextDecoder('utf-8');
+    var decodedValue = decoder.decode(value);
+    console.log(decodedValue);
+
+    if (decodedValue.startsWith("4")){
+        addResponseToLog(decodedValue);
+        addResponseToLog(convertValue(decodedValue));
+    } else {
+        addResponseToLog(decodedValue);
+    }
+}
+
+
+function clearConsole() {
+    logElement.innerHTML = "";
+}
 function onDisconnected() {
     console.log('disconnected');
     pairElement.innerHTML = 'Pair with device';
