@@ -5,6 +5,8 @@ var bluetoothService = {};
 var bluetoothWriteCharacteristic = {};
 var bluetoothReadCharacteristic = {};
 var gauge= {};
+var sending = 0;
+var repeatJobID;
 
 var serviceUUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 var characteristicWriteUUID = '0000fff2-0000-1000-8000-00805f9b34fb';
@@ -60,7 +62,7 @@ function getDevice() {
 
 function encodeCommand(commandText) {
     var encoder = new TextEncoder('UTF-8');
-    return encoder.encode(commandText);
+    return encoder.encode(commandText + "\r");
 }
 
 function getCommandText() {
@@ -69,13 +71,17 @@ function getCommandText() {
 }
 
 function writeToBluetooth(text) {
-    return bluetoothWriteCharacteristic.writeValue(encodeCommand(text)).then(value => {
-        console.log("command successfully sent")
-    }, error => {
-        console.log('write error: ' + error);
-    });
-}
 
+    if (sending == 0){
+        sending = 1;
+        return bluetoothWriteCharacteristic.writeValue(encodeCommand(text)).then(value => {
+            console.log("command successfully sent")
+        }, error => {
+            console.log('write error: ' + error);
+        });
+
+    }
+}
 
 var convertValue = function (decodedValue) {
     var hexString = decodedValue.substr(6).replace(/\s/g, "");
@@ -88,12 +94,13 @@ function changeGauge(decodedValue) {
 
 
 function handleNottification(event) {
+    sending = 0;
     var value = event.target.value;
     var decoder = new TextDecoder('utf-8');
     var decodedValue = decoder.decode(value);
     console.log(decodedValue);
     if (decodedValue.startsWith("4")){
-        changeGauge(decodedValue);
+        changeGauge(convertValue(decodedValue));
     }
 }
 
@@ -113,9 +120,7 @@ function onConnected() {
         title: "Engine RPM"
     });
 
-    writeToBluetooth("AT E0");
-
-    setInterval(function () {
+    repeatJobID = setInterval(function () {
         writeToBluetooth("01 0c");
-    }, 50);
+    }, 80);
 }
