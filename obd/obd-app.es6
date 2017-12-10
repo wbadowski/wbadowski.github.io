@@ -43,7 +43,7 @@ function getDevice() {
             characteristic.addEventListener('characteristicvaluechanged', handleNottification);
             return characteristic.startNotifications()
         })
-        .then(_ => {
+        .then(() => {
             console.log("subscribed to reading notifications");
             return bluetoothService.getCharacteristic(characteristicWriteUUID);
         })
@@ -82,11 +82,11 @@ function writeToBluetooth() {
 }
 
 function addResponseToLog(logLine) {
-    return  addLineToLog("<= " + logLine);
+    return  addLineToLog("⏪ " + logLine);
 }
 
 function addRequestToLog(logLine) {
-    return addLineToLog( "=> " + logLine);
+    return addLineToLog( "✅ " + logLine);
 }
 
 function addLineToLog(logLine) {
