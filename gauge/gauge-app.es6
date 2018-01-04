@@ -14,7 +14,7 @@ var eolChar = "\r";
 var encoder = new TextEncoder('UTF-8');
 
 var rpmMin = 0;
-var rpmMax = 16000;
+var rpmMax = 6000;
 var rpmDefault = 0;
 
 var gauge = new JustGage({
